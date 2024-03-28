@@ -1,16 +1,31 @@
-import pytz
+import secrets
 from datetime import datetime
 
 # import asqlite
+import pytz
 import uvicorn
 from fastapi import FastAPI, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 import utils
 import config
 
+class Science(BaseModel):
+    metric: str
 
-app = FastAPI(debug=config.DEBUG)
+
+app = FastAPI(debug=config.DEBUG, openapi_url=None)
+app.mount("/cdn", StaticFiles(directory="static"), name="cdn")
+
+
+@app.get("/")
+async def root():
+    utils.science("visited_api_/")
+    return PlainTextResponse("Hey there fellow curious traveller!\n"
+                             "Looks like you've reached sqd's HOS' API.\n"
+                             "You can find the documentation here: https://sqdnoises.gitbook.io/the-hos-documentation")
 
 
 @app.get("/messages")
@@ -47,9 +62,33 @@ async def get_message(message_id: int):
                              "payload": {"message": None}}, status_code=404)
 
 
+@app.get("/random")
+async def random():
+    all_messages = utils.get_messages()
+    
+    return {
+        "message": "OK",
+        "payload": {
+            "message": secrets.choice(all_messages)
+        }
+    }
+
+
 @app.get("/ping")
 async def ping():
+    utils.science("pinged")
     return {"message": "pong"}
+
+
+@app.get("/science")
+async def science_get():
+    utils.science("visited_science")
+    return {"message": "OK"}
+
+@app.post("/science")
+async def science_post(data: Science):
+    utils.science(data.metric)
+    return {"message": "OK"}
 
 
 @app.get("/statistics")
