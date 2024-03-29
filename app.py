@@ -28,6 +28,15 @@ async def root():
                              "You can find the documentation here: https://sqdnoises.gitbook.io/the-hos-documentation")
 
 
+@app.get("/.env")
+async def root():
+    utils.science("visited_env")
+    return PlainTextResponse("# Mmmm this is totally a proper .env file\n"
+                             'API_KEY="Mmm this a really good API key"\n'
+                             'Imagine="Being such a noob"\n'
+                             'Oh="You don\'t need to imagine"')
+
+
 @app.get("/messages")
 async def get_messages(
     items: int = Query(100, ge=1, le=config.MAX_ITEMS_PER_PAGE),
@@ -84,6 +93,7 @@ async def ping():
 async def science_get():
     utils.science("visited_science")
     return {"message": "OK"}
+
 
 @app.post("/science")
 async def science_post(data: Science):
