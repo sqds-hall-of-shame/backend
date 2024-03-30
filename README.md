@@ -9,7 +9,7 @@ Not to wirry!! Me is hear to help!!1!1!1!!!1
 Need pithon 3.10+
 
 ```
-git clone https://github.com/sqds-hall-of-shame/backend.git
+git clone git@github.com:/sqds-hall-of-shame/backend
 pip install -r requirements.txt
 ```
 
