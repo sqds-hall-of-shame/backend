@@ -16,7 +16,7 @@ class Science(BaseModel):
     metric: str
 
 
-app = FastAPI(debug=config.DEBUG, openapi_url=None)
+app = FastAPI(debug=config.DEBUG)
 app.mount("/cdn", StaticFiles(directory="static"), name="cdn")
 
 
