@@ -4,18 +4,18 @@ from typing import Callable
 
 
 def get_messages() -> dict[str, dict]:
-    with open("messages/messages.json") as f:
+    with open("db/messages.json") as f:
         return json.load(f)
 
 def get_users() -> dict[str, dict]:
-    with open("messages/users.json") as f:
+    with open("db/users.json") as f:
         return json.load(f)
 
 def get_attachments(id: int) -> dict[str, dict] | None:
     filename = f"{id}.json"
     
-    if filename in os.listdir("messages/messages"):
-        with open(f"messages/messages/{filename}") as f:
+    if filename in os.listdir("db/messages"):
+        with open(f"db/messages/{filename}") as f:
             return json.load(f.get("attachments"))
 
 def science(metric: str) -> None:

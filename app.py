@@ -44,7 +44,7 @@ async def get_messages(
 ):
     all_messages = utils.get_messages().values()
     paginated_messages = utils.paginate(all_messages, items)
-    messages = paginated_messages[page-1:page]
+    messages = paginated_messages[page-1:page][0]
     
     return {
         "message": "OK",
