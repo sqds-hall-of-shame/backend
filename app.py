@@ -42,7 +42,7 @@ async def get_messages(
     items: int = Query(100, ge=1, le=config.MAX_ITEMS_PER_PAGE),
     page: int = Query(1, ge=1)
 ):
-    all_messages = utils.get_messages()
+    all_messages = utils.get_messages().values()
     paginated_messages = utils.paginate(all_messages, items)
     messages = paginated_messages[page-1:page]
     
@@ -52,6 +52,71 @@ async def get_messages(
             "messages": messages
         }
     }
+
+
+@app.get("/messages/{message_id}")
+async def get_message(message_id: int):
+    all_messages = utils.get_messages()
+    
+    message = all_messages.get(str(message_id))
+
+    if message:
+        return {"message": "OK", "payload": {"message": message}}
+    else:
+        return JSONResponse({"message": "The message with the given ID could not be found.",
+                             "payload": {"message": None}}, status_code=404)
+
+
+@app.get("/messages/{message_id}/attachments")
+async def get_message_attachments(message_id: int):
+    attachments = utils.get_attachments(message_id)
+    
+    if attachments:
+        return {"message": "OK", "payload": {"attachments": attachments}}
+    elif message_id in utils.get_messages():
+        return {"message": "OK", "payload": {"attachments": []}}  # No attachments, but the message exists.
+    else:
+        return JSONResponse({"message": "The message with the given ID could not be found.",
+                             "payload": {"attachments": None}}, status_code=404)
+
+
+@app.get("/users")
+async def get_users(avatar: bool):
+    all_users = utils.get_users().values()
+    
+    if not avatar:
+        for user in all_users:
+            del user["avatar"]
+    
+    return {"message": "OK", "payload": {"users": all_users}}
+
+
+@app.get("/users/{user_id}")
+async def get_user(user_id: int, avatar: bool):
+    all_users = utils.get_users()
+    
+    user = all_users.get(str(user_id))
+    if avatar:
+        del user["avatar"]
+    
+    if user:
+        return {"message": "OK", "payload": {"user": user}}
+    else:
+        return JSONResponse({"message": "The user with the given ID could not be found.",
+                             "payload": {"user": None}}, status_code=404)
+
+
+@app.get("/users/{user_id}/avatar")
+async def get_user_avatar(user_id: int):
+    all_users = utils.get_users()
+    
+    user = all_users.get(str(user_id))
+    
+    if user:
+        return {"message": "OK", "payload": {"avatar": user["avatar"]}}
+    else:
+        return JSONResponse({"message": "The user with the given ID could not be found.",
+                             "payload": {"user": user["avatar"]}}, status_code=404)
 
 
 @app.get("/messages/{message_id}")

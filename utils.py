@@ -1,10 +1,22 @@
+import os
 import json
 from typing import Callable
 
 
-def get_messages() -> list[dict]:
-    with open("temp/messages.json", encoding="utf-8") as f:
+def get_messages() -> dict[str, dict]:
+    with open("messages/messages.json") as f:
         return json.load(f)
+
+def get_users() -> dict[str, dict]:
+    with open("messages/users.json") as f:
+        return json.load(f)
+
+def get_attachments(id: int) -> dict[str, dict] | None:
+    filename = f"{id}.json"
+    
+    if filename in os.listdir("messages/messages"):
+        with open(f"messages/messages/{filename}") as f:
+            return json.load(f.get("attachments"))
 
 def science(metric: str) -> None:
     with open("temp/science.json", encoding="utf-8") as f:
