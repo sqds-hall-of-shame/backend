@@ -1,8 +1,6 @@
 import secrets
-from datetime import datetime
+from typing import Literal
 
-# import asqlite
-import pytz
 import uvicorn
 from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse, PlainTextResponse
@@ -15,29 +13,60 @@ import config
 class Science(BaseModel):
     metric: str
 
+class User(BaseModel):
+    username: str
+    display_name: str
+    id: str
+    avatar: str
 
-app = FastAPI(debug=config.DEBUG)
+class Attachment(BaseModel):
+    filename: str
+    content_type: str
+    id: str
+    spoiler: bool
+    height: int
+    width: int
+    content: str
+
+class Message(BaseModel):
+    attachments: list[Attachment]
+    content: str
+    id: str
+    timestamp: float
+    uploader: User
+
+
+app = FastAPI(debug=config.DEBUG, openapi_url=None if not config.DEBUG else "/openapi.json")
 app.mount("/cdn", StaticFiles(directory="static"), name="cdn")
 
 
-@app.get("/")
-async def root():
+@app.get("/", response_class=PlainTextResponse)
+async def root() -> Literal["Hey there fellow curious traveller!\n"
+                            "Looks like you've reached sqd's HOS' API.\n"
+                            "You can find the documentation here: https://sqdnoises.gitbook.io/the-hos-documentation"]:
+    
     utils.science("visited_api_/")
-    return PlainTextResponse("Hey there fellow curious traveller!\n"
-                             "Looks like you've reached sqd's HOS' API.\n"
-                             "You can find the documentation here: https://sqdnoises.gitbook.io/the-hos-documentation")
+    
+    return ("Hey there fellow curious traveller!\n"
+            "Looks like you've reached sqd's HOS' API.\n"
+            "You can find the documentation here: https://sqdnoises.gitbook.io/the-hos-documentation")
 
 
-@app.get("/.env")
-async def root():
+@app.get("/.env", response_class=PlainTextResponse)
+async def env() -> Literal["# Mmmm this is totally a proper .env file\n"
+                           'API_KEY="Mmm this a really good API key"\n'
+                           'Imagine="Being such a noob"\n'
+                           'Oh="You don\'t need to imagine"']:
+    
     utils.science("visited_env")
-    return PlainTextResponse("# Mmmm this is totally a proper .env file\n"
-                             'API_KEY="Mmm this a really good API key"\n'
-                             'Imagine="Being such a noob"\n'
-                             'Oh="You don\'t need to imagine"')
+    
+    return ("# Mmmm this is totally a proper .env file\n"
+            'API_KEY="Mmm this a really good API key"\n'
+            'Imagine="Being such a noob"\n'
+            'Oh="You don\'t need to imagine"')
 
 
-@app.get("/messages")
+@app.get("/messages", response_class=JSONResponse)
 async def get_messages(
     items: int = Query(100, ge=1, le=config.MAX_ITEMS_PER_PAGE),
     page: int = Query(1, ge=1)
@@ -81,8 +110,8 @@ async def get_message_attachments(message_id: int):
 
 
 @app.get("/users")
-async def get_users(avatar: bool):
-    all_users = utils.get_users().values()
+async def get_users(avatar: bool = False):
+    all_users = list(utils.get_users().values())
     
     if not avatar:
         for user in all_users:
@@ -92,11 +121,11 @@ async def get_users(avatar: bool):
 
 
 @app.get("/users/{user_id}")
-async def get_user(user_id: int, avatar: bool):
+async def get_user(user_id: int, avatar: bool = False):
     all_users = utils.get_users()
     
     user = all_users.get(str(user_id))
-    if avatar:
+    if not avatar:
         del user["avatar"]
     
     if user:
@@ -138,7 +167,7 @@ async def get_message(message_id: int):
 
 @app.get("/random")
 async def random():
-    all_messages = utils.get_messages()
+    all_messages = list(utils.get_messages().items())
     
     return {
         "message": "OK",
@@ -168,8 +197,7 @@ async def science_post(data: Science):
 
 @app.get("/statistics")
 async def get_statistics():
-    last_update_time = datetime.now(pytz.UTC).timestamp()
-    return {"last_database_update": int(last_update_time)}
+    return utils.get_statistics()
 
 
 if __name__ == "__main__":

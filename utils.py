@@ -1,30 +1,34 @@
 import os
 import json
-from typing import Callable
-
+import config
+from typing import Any, Callable
 
 def get_messages() -> dict[str, dict]:
-    with open("db/messages.json") as f:
+    with open(f"{config.DATABASE_STORAGE}/messages.json") as f:
         return json.load(f)
 
 def get_users() -> dict[str, dict]:
-    with open("db/users.json") as f:
+    with open(f"{config.DATABASE_STORAGE}/users.json") as f:
         return json.load(f)
 
 def get_attachments(id: int) -> dict[str, dict] | None:
     filename = f"{id}.json"
     
-    if filename in os.listdir("db/messages"):
-        with open(f"db/messages/{filename}") as f:
-            return json.load(f.get("attachments"))
+    if filename in os.listdir(f"{config.DATABASE_STORAGE}/messages"):
+        with open(f"{config.DATABASE_STORAGE}/messages/{filename}") as f:
+            return json.load(f).get("attachments")
+
+def get_statistics() -> dict[str, Any]:
+    with open(f"{config.DATABASE_STORAGE}/statistics.json") as f:
+        return json.load(f)
 
 def science(metric: str) -> None:
-    with open("temp/science.json", encoding="utf-8") as f:
+    with open(f"{config.DATABASE_STORAGE}/science.json", encoding="utf-8") as f:
         science = json.load(f)
     
     science.update({metric: science.get(metric, 0) + 1})
     
-    with open("temp/science.json", "w", encoding="utf-8") as f:
+    with open(f"{config.DATABASE_STORAGE}/science.json", "w", encoding="utf-8") as f:
         json.dump(science, f, indent=2)
 
 def paginate(array: list | tuple | set, count: int = 100, debug: bool = False, logger: Callable = print) -> list:

@@ -3,6 +3,9 @@ HOST = "0.0.0.0"
 PORT = 8080
 DEBUG = True
 
+# Database
+DATABASE_STORAGE = "./db"
+
 # /messages
 DEFAULT_ITEMS_PER_PAGE = 100
 MAX_ITEMS_PER_PAGE = 1000
