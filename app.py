@@ -79,7 +79,8 @@ async def get_messages(
         "message": "OK",
         "payload": {
             "messages": messages,
-            "pages": len(paginated_messages)
+            "pages": len(paginated_messages),
+            "current_page": page
         }
     }
 
