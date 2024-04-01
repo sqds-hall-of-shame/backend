@@ -83,6 +83,20 @@ async def get_messages(
     }
 
 
+@app.get("/messages/pages", response_class=JSONResponse)
+async def get_messages(items: int = Query(100, ge=1, le=config.MAX_ITEMS_PER_PAGE)):
+    all_messages = utils.get_messages().values()
+    paginated_messages = utils.paginate(all_messages, items)
+    
+    return {
+        "message": "OK",
+        "payload": {
+            "pages": len(paginated_messages)
+        }
+    }
+
+
+
 @app.get("/messages/{message_id}")
 async def get_message(message_id: int):
     all_messages = utils.get_messages()
