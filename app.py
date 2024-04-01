@@ -110,57 +110,23 @@ async def get_message(message_id: int):
                              "payload": {"message": None}}, status_code=404)
 
 
-@app.get("/messages/{message_id}/attachments")
-async def get_message_attachments(message_id: int):
-    attachments = utils.get_attachments(message_id)
-    
-    if attachments:
-        return {"message": "OK", "payload": {"attachments": attachments}}
-    elif message_id in utils.get_messages():
-        return {"message": "OK", "payload": {"attachments": []}}  # No attachments, but the message exists.
-    else:
-        return JSONResponse({"message": "The message with the given ID could not be found.",
-                             "payload": {"attachments": None}}, status_code=404)
-
-
 @app.get("/users")
-async def get_users(avatar: bool = False):
+async def get_users():
     all_users = list(utils.get_users().values())
-    
-    if not avatar:
-        for user in all_users:
-            del user["avatar"]
-    
     return {"message": "OK", "payload": {"users": all_users}}
 
 
 @app.get("/users/{user_id}")
-async def get_user(user_id: int, avatar: bool = False):
+async def get_user(user_id: int):
     all_users = utils.get_users()
     
     user = all_users.get(str(user_id))
-    if not avatar:
-        del user["avatar"]
     
     if user:
         return {"message": "OK", "payload": {"user": user}}
     else:
         return JSONResponse({"message": "The user with the given ID could not be found.",
                              "payload": {"user": None}}, status_code=404)
-
-
-@app.get("/users/{user_id}/avatar")
-async def get_user_avatar(user_id: int):
-    all_users = utils.get_users()
-    
-    user = all_users.get(str(user_id))
-    
-    if user:
-        return {"message": "OK", "payload": {"avatar": user["avatar"]}}
-    else:
-        return JSONResponse({"message": "The user with the given ID could not be found.",
-                             "payload": {"user": user["avatar"]}}, status_code=404)
-
 
 @app.get("/random")
 async def random():
