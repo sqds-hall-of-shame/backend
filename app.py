@@ -162,26 +162,9 @@ async def get_user_avatar(user_id: int):
                              "payload": {"user": user["avatar"]}}, status_code=404)
 
 
-@app.get("/messages/{message_id}")
-async def get_message(message_id: int):
-    all_messages = utils.get_messages()
-    
-    message = None
-    for msg in all_messages:
-        if msg["id"] == message_id:
-            message = msg
-            break
-
-    if message:
-        return {"message": "OK", "payload": {"message": message}}
-    else:
-        return JSONResponse({"message": "The message with the given ID could not be found.",
-                             "payload": {"message": None}}, status_code=404)
-
-
 @app.get("/random")
 async def random():
-    all_messages = list(utils.get_messages().items())
+    all_messages = list(utils.get_messages().values())
     
     return {
         "message": "OK",
