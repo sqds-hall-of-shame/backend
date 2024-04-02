@@ -98,6 +98,17 @@ async def get_messages(items: int = Query(100, ge=1, le=config.MAX_ITEMS_PER_PAG
     }
 
 
+@app.get("/messages/random")
+async def random():
+    all_messages = list(utils.get_messages().values())
+    
+    return {
+        "message": "OK",
+        "payload": {
+            "message": secrets.choice(all_messages)
+        }
+    }
+
 
 @app.get("/messages/{message_id}")
 async def get_message(message_id: int):
@@ -130,22 +141,16 @@ async def get_user(user_id: int):
         return JSONResponse({"message": "The user with the given ID could not be found.",
                              "payload": {"user": None}}, status_code=404)
 
-@app.get("/random")
-async def random():
-    all_messages = list(utils.get_messages().values())
-    
-    return {
-        "message": "OK",
-        "payload": {
-            "message": secrets.choice(all_messages)
-        }
-    }
-
 
 @app.get("/ping")
 async def ping():
     utils.science("pinged")
     return {"message": "pong"}
+
+
+@app.get("/statistics")
+async def get_statistics():
+    return utils.get_statistics()
 
 
 @app.get("/science")
@@ -158,11 +163,6 @@ async def science_get():
 async def science_post(data: Science):
     utils.science(data.metric)
     return {"message": "OK"}
-
-
-@app.get("/statistics")
-async def get_statistics():
-    return utils.get_statistics()
 
 
 if __name__ == "__main__":
