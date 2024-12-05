@@ -41,6 +41,7 @@ app = FastAPI(
 )
 app.mount("/cdn", StaticFiles(directory="static"), name="cdn")
 app.mount("/attachments", StaticFiles(directory="attachments"), name="attachments")
+app.mount("/avatars", StaticFiles(directory="avatars"), name="avatars")
 
 
 @app.get("/", response_class=PlainTextResponse)
