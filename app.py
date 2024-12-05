@@ -11,10 +11,6 @@ import utils
 import config
 
 
-class Science(BaseModel):
-    metric: str
-
-
 class User(BaseModel):
     username: str
     display_name: str
@@ -44,6 +40,7 @@ app = FastAPI(
     debug=config.DEBUG, openapi_url=None if not config.DEBUG else "/openapi.json"
 )
 app.mount("/cdn", StaticFiles(directory="static"), name="cdn")
+app.mount("/attachments", StaticFiles(directory="attachments"), name="attachments")
 
 
 @app.get("/", response_class=PlainTextResponse)
@@ -54,8 +51,6 @@ async def root() -> (
         "You can find the documentation here: https://sqdnoises.gitbook.io/the-hos-documentation"
     ]
 ):
-
-    utils.science("visited_api_/")
 
     return (
         "Hey there fellow curious traveller!\n"
@@ -73,8 +68,6 @@ async def env() -> (
         'Oh="You don\'t need to imagine"'
     ]
 ):
-
-    utils.science("visited_env")
 
     return (
         "# Mmmm this is totally a proper .env file\n"
@@ -176,25 +169,12 @@ async def get_user(user_id: int):
 
 @app.get("/ping")
 async def ping():
-    utils.science("pinged")
     return {"message": "pong"}
 
 
 @app.get("/statistics")
 async def get_statistics():
     return utils.get_statistics()
-
-
-@app.get("/science")
-async def science_get():
-    utils.science("visited_science")
-    return {"message": "OK"}
-
-
-@app.post("/science")
-async def science_post(data: Science):
-    utils.science(data.metric)
-    return {"message": "OK"}
 
 
 if __name__ == "__main__":

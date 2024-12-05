@@ -33,16 +33,6 @@ def get_statistics() -> dict[str, Any]:
         return json.load(f)
 
 
-def science(metric: str) -> None:
-    with open(f"{config.DATABASE_STORAGE}/science.json", encoding="utf-8") as f:
-        science = json.load(f)
-
-    science.update({metric: science.get(metric, 0) + 1})
-
-    with open(f"{config.DATABASE_STORAGE}/science.json", "w", encoding="utf-8") as f:
-        json.dump(science, f, indent=2)
-
-
 def paginate(
     array: list | tuple | set,
     count: int = 100,
