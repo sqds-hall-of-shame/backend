@@ -3,3 +3,6 @@ __pycache__
 venv
 db
 database
+attachments
+avatars
+static
