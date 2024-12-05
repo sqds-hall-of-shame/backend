@@ -117,7 +117,7 @@ async def get_messages(items: int = Query(100, ge=1, le=config.MAX_ITEMS_PER_PAG
 @app.get("/messages/random")
 async def random():
     all_messages = utils.get_messages()
-    message_id = secrets.choice(all_messages.keys())
+    message_id = secrets.choice(list(all_messages.keys()))
 
     return {
         "message": "OK",
