@@ -89,9 +89,12 @@ async def get_messages(
     items: int = Query(100, ge=1, le=config.MAX_ITEMS_PER_PAGE),
     page: int = Query(1, ge=1),
 ):
-    all_messages = utils.get_messages().values()
-    paginated_messages = utils.paginate(all_messages, items)
-    messages = paginated_messages[page - 1 : page][0]
+    all_messages = utils.get_messages()
+    paginated_messages = utils.paginate(all_messages.keys(), items)
+    messages = [
+        {"message": all_messages[id], "attachments": utils.get_attachments(id) or []}
+        for id in paginated_messages[page - 1 : page][0]
+    ]
 
     return {
         "message": "OK",
@@ -113,9 +116,16 @@ async def get_messages(items: int = Query(100, ge=1, le=config.MAX_ITEMS_PER_PAG
 
 @app.get("/messages/random")
 async def random():
-    all_messages = list(utils.get_messages().values())
+    all_messages = utils.get_messages()
+    message_id = secrets.choice(all_messages.keys())
 
-    return {"message": "OK", "payload": {"message": secrets.choice(all_messages)}}
+    return {
+        "message": "OK",
+        "payload": {
+            "message": all_messages[message_id],
+            "attachments": utils.get_attachments(message_id) or [],
+        },
+    }
 
 
 @app.get("/messages/{message_id}")
@@ -123,35 +133,18 @@ async def get_message(message_id: int):
     all_messages = utils.get_messages()
 
     message = all_messages.get(str(message_id))
+    attachments = utils.get_attachments(message_id)
 
     if message:
-        return {"message": "OK", "payload": {"message": message}}
+        return {
+            "message": "OK",
+            "payload": {"message": message, "attachments": attachments or []},
+        }
     else:
         return JSONResponse(
             {
                 "message": "The message with the given ID could not be found.",
                 "payload": {"message": None},
-            },
-            status_code=404,
-        )
-
-
-@app.get("/messages/{message_id}/attachments")
-async def get_message_attachments(message_id: int):
-    attachments = utils.get_attachments(message_id)
-
-    if attachments:
-        return {"message": "OK", "payload": {"attachments": attachments}}
-    elif message_id in utils.get_messages():
-        return {
-            "message": "OK",
-            "payload": {"attachments": []},
-        }  # No attachments, but the message exists.
-    else:
-        return JSONResponse(
-            {
-                "message": "The message with the given ID could not be found.",
-                "payload": {"attachments": None},
             },
             status_code=404,
         )
